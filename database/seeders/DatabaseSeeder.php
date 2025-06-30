@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Post;
+use App\Models\Comment;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,20 +17,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(ProductsTableSeeder::class);
-        // User::factory(100)->create()->each(function ($user) {
-        //     Order::factory(rand(5, 10))->create([
-        //         'user_id' => $user->id,
-        //     ])->each(function ($order) {
-        //         $total = 0;
-        //         $items = OrderItem::factory(rand(2, 5))->make(); // make, not create
-        //         foreach ($items as $item) {
-        //             $item->order_id = $order->id;
-        //             $item->save(); // inserting into DB
-        //             $total += $item->quantity * $item->unit_price;
-        //         }
-        //         $order->update(['total_amount' => $total]);
-        //     });
-        // });
+        //$this->call(ProductsTableSeeder::class);
+        // Create users
+        $users = \App\Models\User::factory()->count(100)->create();
+
+        // Create posts for each user
+        $users->each(function ($user) {
+            \App\Models\Post::factory()->count(2)->create([
+                'user_id' => $user->id
+            ]);
+        });
+
+        // Add comments to random posts by random users
+        $users->each(function ($user) use ($users) {
+            \App\Models\Comment::factory()->count(7)->create([
+                'user_id' => $user->id,
+                'post_id' => \App\Models\Post::inRandomOrder()->first()->id
+            ]);
+        });
     }
 }
