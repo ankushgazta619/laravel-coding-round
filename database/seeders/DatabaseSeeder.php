@@ -35,5 +35,18 @@ class DatabaseSeeder extends Seeder
                 'post_id' => \App\Models\Post::inRandomOrder()->first()->id
             ]);
         });
+
+        // Create orders for each user
+        $users->each(function ($user) {
+            $orders = Order::factory()->count(3)->create([
+                'user_id' => $user->id
+            ]);
+            // Create order items for each order
+            $orders->each(function ($order) {
+                OrderItem::factory()->count(4)->create([
+                    'order_id' => $order->id
+                ]);
+            });
+        });
     }
 }
